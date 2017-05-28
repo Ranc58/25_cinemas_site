@@ -1,12 +1,11 @@
 import requests
-import argparse
 from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from operator import itemgetter
 from bs4 import BeautifulSoup as bs
 from kinopoisk.movie import Movie
 
-POOL = ThreadPool(8)
+
 URL_AFISHA = 'https://www.afisha.ru/msk/schedule_cinema/#'
 KINOPOISK_XML = 'https://rating.kinopoisk.ru/{}.xml'
 
@@ -79,13 +78,14 @@ def get_output_fimls(movies_info, kinopoisk_rates, cinemas_count_list):
 
 
 def parse_films():
+    pool=ThreadPool(4)
     afisha_raw_html = fetch_afisha_page(URL_AFISHA)
     cinemas_count_list = parse_afisha_list(afisha_raw_html)
-    movies_info = POOL.map(get_kinopoisk_films_id, cinemas_count_list)
-    xml_kinopoisk_list = POOL.map(get_xml_kinopoisk_list, movies_info)
-    kinopoisk_rates = POOL.map(parse_rate_kinopoisk, xml_kinopoisk_list)
-    POOL.close()
-    POOL.join()
+    movies_info = pool.map(get_kinopoisk_films_id, cinemas_count_list)
+    xml_kinopoisk_list = pool.map(get_xml_kinopoisk_list, movies_info)
+    kinopoisk_rates = pool.map(parse_rate_kinopoisk, xml_kinopoisk_list)
+    pool.close()
+    pool.join()
     return get_output_fimls(movies_info, kinopoisk_rates, cinemas_count_list)
 
 
