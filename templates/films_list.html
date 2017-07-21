@@ -11,7 +11,7 @@
 
     <title>Что в кино</title>
 
-    <link rel="stylesheet" href="static/css/custom.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
@@ -30,12 +30,20 @@
     <div class="container">
         {% for film in films %}
         <div class="row">
-            <div class="col-sm-6 col-md-8 col-md-offset-2">
+            <div class="col-sm-12 col-md-8 col-md-offset-2">
                 <div class="thumbnail">
-                    <h3 class="text-center">{{ film.name }}</h3>
                     <img src={{ film.poster }} alt={{ film.title }}>
                     <div class="caption">
+                        <h3 class="text-center">{{ film.name }}</h3>
                         <p>{{ film.description }}</p>
+                        <div class="row">
+                            <div class="col-sm-6 col-md-7">
+                                <h3>Рейтинг: <span class="label label-primary">{{ film.rate }}</span></h3>
+                            </div>
+                            <div class="col-sm-6 col-md-7 col-md-offset-2">
+                                <h3>Количество кинотеатров: <span class="label label-primary">{{ film.cinemas_count }}</span></h3>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
