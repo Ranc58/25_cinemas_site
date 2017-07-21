@@ -59,7 +59,7 @@ def parse_rate_kinopoisk(movie):
     moive_rate = bs(movie.text, 'lxml')
     rate = moive_rate.find('kp_rating')
     counts_rate = moive_rate.find('kp_rating')['num_vote']
-    rating_dict = {'rate': rate.text,
+    rating_dict = {'rate': float(rate.text),
                    'counts_rate': counts_rate}
     return rating_dict
 
@@ -87,17 +87,3 @@ def parse_films():
     pool.close()
     pool.join()
     return get_output_fimls(movies_info, kinopoisk_rates, cinemas_count_list)
-
-
-if __name__ == '__main__':
-    print('Please wait')
-    afisha_raw_html = fetch_afisha_page(URL_AFISHA)
-    cinemas_count_list = parse_afisha_list(afisha_raw_html)
-    movies_info = POOL.map(get_kinopoisk_films_id, cinemas_count_list)
-    xml_kinopoisk_list = POOL.map(get_xml_kinopoisk_list, movies_info)
-    kinopoisk_rates = POOL.map(parse_rate_kinopoisk, xml_kinopoisk_list)
-    POOL.close()
-    POOL.join()
-    output_films_info = get_output_fimls(movies_info, kinopoisk_rates, cinemas_count_list)
-    for film in output_films_info:
-        print(film)
