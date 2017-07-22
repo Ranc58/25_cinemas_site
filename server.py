@@ -36,7 +36,7 @@ def parse_afisha_list(afisha_raw_html):
         if cinemas_count > 30 and film_name.text != 'Овердрайв':  # TODO del film_name.text
             film_info_dict = {'name': film_name.text,
                               'cinemas_count': cinemas_count,
-                              'afisha_film_url': film_url}
+                              'afisha_film_url': str(film_url)}
             cinemas_count_list.append(film_info_dict)
     return cinemas_count_list
 
@@ -74,6 +74,7 @@ def get_output_fimls(movies_info, kinopoisk_rates, cinemas_count_list):
                         for x, y in zip(movies_info, kinopoisk_rates)]
     for movies, cinemas in zip(movies_info_list, cinemas_count_list):
         movies['cinemas_count'] = cinemas['cinemas_count']
+        movies['afisha_film_url'] = cinemas['afisha_film_url']
     movies_info_list = [x for x in movies_info_list
                         if int(x.get('counts_rate')) > rate_counts_min]
     movies_info_list = sorted(movies_info_list,
