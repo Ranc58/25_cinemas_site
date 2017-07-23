@@ -115,7 +115,8 @@ def filter_output_films(films_info_list):
 
 
 def parse_films():
-    pool = ThreadPool(8)
+    threads_counts = 8
+    pool = ThreadPool(threads_counts)
     afisha_raw_html = fetch_afisha_page(URL_AFISHA)
     all_cinemas_count_list = parse_afisha_list(afisha_raw_html)
     cinemas_count_list = filter_afisha_movies(all_cinemas_count_list)
