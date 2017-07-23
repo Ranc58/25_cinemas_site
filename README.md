@@ -17,7 +17,7 @@ Venv setup example: \
 `$python3 -m venv myenv`\
 `source myenv/bin/activate`
 2. Install requirements:\
-`$pip3 install -r requirements.txt` (alternatively try add `sudo` before command)\
+`$pip3 install -r requirements.txt` (alternatively try add `sudo` before command)
 
 # How to launch
    - Go to `25_cinemas_count` folder.
