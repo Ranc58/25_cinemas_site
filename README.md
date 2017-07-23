@@ -21,7 +21,7 @@ Venv setup example: \
 
 # How to launch
    - Go to `25_cinemas_count` folder.
-   - Run server `gunicorn server:app -t 300`
+   - Run server `gunicorn server:app --timeout 300`
    - Open on browser `http://127.0.0.1:8000`
    - For API page: `http://127.0.0.1:8000/api_movie`
 # Project Goals
