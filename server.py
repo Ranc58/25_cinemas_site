@@ -2,7 +2,7 @@ import json
 import tempfile
 from flask import Flask, render_template, Response
 from werkzeug.contrib.cache import FileSystemCache
-from movie_parser import parse_films
+from movie_parser import output_top_movies
 
 
 app = Flask(__name__)
@@ -14,7 +14,7 @@ cache = FileSystemCache(cache_dir=tmp_dir)
 def get_movies_from_cache():
     movies = cache.get('movies')
     if movies is None:
-        movies = parse_films()
+        movies = output_top_movies()
         cache.set('movies', movies, timeout=12 * 60 * 60)
     return movies
 
