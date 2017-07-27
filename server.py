@@ -30,6 +30,5 @@ def get_api():
                                indent=2, ensure_ascii=False),
                     content_type='application/json; charset=utf-8')
 
-
 if __name__ == "__main__":
     app.run()

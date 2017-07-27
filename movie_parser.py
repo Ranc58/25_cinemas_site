@@ -17,10 +17,10 @@ def parse_afisha_list(afisha_raw_html):
     parse_info = bs(afisha_raw_html, "lxml")
     movie_list = parse_info.find('div',
                                  {'class':
-                                  'b-theme-schedule m-schedule-with-collapse'})
+                                      'b-theme-schedule m-schedule-with-collapse'})
     movies = movie_list.findAll('div',
                                 {'class':
-                                 'object s-votes-hover-area collapsed'})
+                                     'object s-votes-hover-area collapsed'})
     cinemas_count_list = []
     for item in movies:
         film_name = item.find('h3', {'class': 'usetags'})
@@ -49,7 +49,7 @@ def parse_afisha_film(movie_content):
     movie_info = bs(movie_content, "lxml")
     try:
         plot_tag = {'id':
-                    'ctl00_CenterPlaceHolder_ucMainPageContent_pEditorComments'}
+                        'ctl00_CenterPlaceHolder_ucMainPageContent_pEditorComments'}
         movie_plot = movie_info.find('p', plot_tag).text.strip()
     except AttributeError:
         movie_plot = None
@@ -107,7 +107,7 @@ def format_info_for_output(movies_info_list,
 
 
 def output_top_movies():
-    threads_counts = 8
+    threads_counts = 10
     pool = ThreadPool(threads_counts)
     afisha_raw_html = fetch_afisha_page(URL_AFISHA)
     all_cinemas_count_list = parse_afisha_list(afisha_raw_html)
@@ -118,11 +118,15 @@ def output_top_movies():
                         for x, y in zip(afisha_film_info, cinemas_count_list)]
     movies_info = pool.map(get_kinopoisk_films_id, cinemas_count_list)
     xml_kinopoisk_list = pool.map(get_xml_kinopoisk_list, movies_info)
+    pool.terminate()
+    pool.join()
     kinopoisk_rates = parse_rate_kinopoisk(xml_kinopoisk_list)
     movies_info_list = [dict(**x, **y)
                         for x, y in zip(movies_info, kinopoisk_rates)]
     top_10_movies = format_info_for_output(movies_info_list, afisha_info_list)
     return top_10_movies
 
+
 if __name__ == "__main__":
-    output_top_movies()
+    print(output_top_movies())
+
