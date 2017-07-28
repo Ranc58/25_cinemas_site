@@ -6,6 +6,7 @@ from kinopoisk.movie import Movie
 
 URL_AFISHA = 'https://www.afisha.ru/msk/schedule_cinema/#'
 KINOPOISK_XML_URL = 'https://rating.kinopoisk.ru/{}.xml'
+POSTER_URL = 'https://st.kp.yandex.net/images/film_big/{}.jpg'
 
 
 def fetch_afisha_page(URL_AFISH):
@@ -17,10 +18,10 @@ def parse_afisha_list(afisha_raw_html):
     parse_info = bs(afisha_raw_html, "lxml")
     movie_list = parse_info.find('div',
                                  {'class':
-                                      'b-theme-schedule m-schedule-with-collapse'})
+                                  'b-theme-schedule m-schedule-with-collapse'})
     movies = movie_list.findAll('div',
                                 {'class':
-                                     'object s-votes-hover-area collapsed'})
+                                 'object s-votes-hover-area collapsed'})
     cinemas_count_list = []
     for item in movies:
         film_name = item.find('h3', {'class': 'usetags'})
@@ -47,25 +48,23 @@ def fetch_afisha_film_page(movie):
 
 def parse_afisha_film(movie_content):
     movie_info = bs(movie_content, "lxml")
-    try:
-        plot_tag = {'id':
-                        'ctl00_CenterPlaceHolder_ucMainPageContent_pEditorComments'}
-        movie_plot = movie_info.find('p', plot_tag).text.strip()
-    except AttributeError:
-        movie_plot = None
-    finally:
-        genres = movie_info.findAll('div', {'class': 'b-tags'}, 'a')
-        return {'description': movie_plot, 'genres': genres[0].text.strip()}
+    plot_tag = {'id':
+                'ctl00_CenterPlaceHolder_ucMainPageContent_pEditorComments'}
+    movie_plot = movie_info.find('p', plot_tag).text.strip()
+    genres = movie_info.findAll('div', {'class': 'b-tags'}, 'a')
+    return {'description': movie_plot, 'genres': genres[0].text.strip()}
 
 
-def get_kinopoisk_films_id(movie):
+def get_kinopoisk_films_id_poster(movie):
     movies = Movie.objects.search(movie['name'])
     movie_from_afisha = movies[0]
-    movie_from_afisha.get_content('posters')
-    movie_id_name_plot_poster = {'id': movie_from_afisha.id,
-                                 'name': movie_from_afisha.title,
-                                 'poster': movie_from_afisha.posters[0]}
-    return movie_id_name_plot_poster
+    id = movie_from_afisha.id
+    name = movie_from_afisha.title
+    poster = POSTER_URL.format(id)
+    movie_id_name_poster = {'id': id,
+                            'name': name,
+                            'poster': poster}
+    return movie_id_name_poster
 
 
 def get_xml_kinopoisk_list(movie):
@@ -94,8 +93,6 @@ def format_info_for_output(movies_info_list,
     for movie, cinema in zip(movies_info_copy, afisha_info_copy):
         movie['cinemas_count'] = cinema['cinemas_count']
         movie['afisha_film_url'] = cinema['afisha_film_url']
-        if cinema['description'] is None:
-            cinema['description'] = 'Нет информации'
         movie['description'] = cinema['description']
         movie['genres'] = cinema['genres']
     full_info_list = [x for x in movies_info_copy
@@ -116,7 +113,7 @@ def output_top_movies():
     afisha_film_info = pool.map(parse_afisha_film, movie_content)
     afisha_info_list = [dict(**x, **y)
                         for x, y in zip(afisha_film_info, cinemas_count_list)]
-    movies_info = pool.map(get_kinopoisk_films_id, cinemas_count_list)
+    movies_info = pool.map(get_kinopoisk_films_id_poster, cinemas_count_list)
     xml_kinopoisk_list = pool.map(get_xml_kinopoisk_list, movies_info)
     pool.terminate()
     pool.join()
@@ -129,4 +126,3 @@ def output_top_movies():
 
 if __name__ == "__main__":
     print(output_top_movies())
-
