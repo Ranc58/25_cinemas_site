@@ -4,12 +4,13 @@ from operator import itemgetter
 from bs4 import BeautifulSoup as bs
 from kinopoisk.movie import Movie
 
-URL_AFISHA = 'https://www.afisha.ru/msk/schedule_cinema/#'
+
 KINOPOISK_XML_URL = 'https://rating.kinopoisk.ru/{}.xml'
 POSTER_URL = 'https://st.kp.yandex.net/images/film_big/{}.jpg'
+URL_AFISHA = 'https://www.afisha.ru/msk/schedule_cinema/'
 
 
-def fetch_afisha_page(URL_AFISH):
+def fetch_afisha_page():
     afisha_raw_html = requests.get(URL_AFISHA).content
     return afisha_raw_html
 
@@ -46,13 +47,17 @@ def fetch_afisha_film_page(movie):
     return movie_content.decode('utf8')
 
 
-def parse_afisha_film(movie_content):
-    movie_info = bs(movie_content, "lxml")
-    plot_tag = {'id':
+def parse_afisha_film(movies_content):
+    movie_info = bs(movies_content, "lxml")
+    try:
+        plot = {'id':
                 'ctl00_CenterPlaceHolder_ucMainPageContent_pEditorComments'}
-    movie_plot = movie_info.find('p', plot_tag).text.strip()
-    genres = movie_info.findAll('div', {'class': 'b-tags'}, 'a')
-    return {'description': movie_plot, 'genres': genres[0].text.strip()}
+        movie_plot = movie_info.find('p', plot).text.strip()
+    except AttributeError:
+        movie_plot = None
+    finally:
+        genres = movie_info.findAll('div', {'class': 'b-tags'}, 'a')
+        return {'description': movie_plot, 'genres': genres[0].text.strip()}
 
 
 def get_kinopoisk_films_id_poster(movie):
@@ -93,6 +98,8 @@ def format_info_for_output(movies_info_list,
     for movie, cinema in zip(movies_info_copy, afisha_info_copy):
         movie['cinemas_count'] = cinema['cinemas_count']
         movie['afisha_film_url'] = cinema['afisha_film_url']
+        if cinema['description'] is None:
+            cinema['description'] = 'Нет информации'
         movie['description'] = cinema['description']
         movie['genres'] = cinema['genres']
     full_info_list = [x for x in movies_info_copy
@@ -104,7 +111,7 @@ def format_info_for_output(movies_info_list,
 
 
 def output_top_movies():
-    threads_counts = 10
+    threads_counts = 8
     pool = ThreadPool(threads_counts)
     afisha_raw_html = fetch_afisha_page(URL_AFISHA)
     all_cinemas_count_list = parse_afisha_list(afisha_raw_html)
