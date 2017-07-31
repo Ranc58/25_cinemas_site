@@ -64,10 +64,10 @@ def get_kinopoisk_films_id_poster(movie):
     movies = Movie.objects.search(movie['name'])
     movie_from_afisha = movies[0]
     id = movie_from_afisha.id
-    name = movie_from_afisha.title
+    film_title = movie_from_afisha.title
     poster = POSTER_URL.format(id)
     movie_id_name_poster = {'id': id,
-                            'name': name,
+                            'name': film_title,
                             'poster': poster}
     return movie_id_name_poster
 
@@ -113,7 +113,7 @@ def format_info_for_output(movies_info_list,
 def output_top_movies():
     threads_counts = 8
     pool = ThreadPool(threads_counts)
-    afisha_raw_html = fetch_afisha_page(URL_AFISHA)
+    afisha_raw_html = fetch_afisha_page()
     all_cinemas_count_list = parse_afisha_list(afisha_raw_html)
     cinemas_count_list = filter_afisha_movies(all_cinemas_count_list)
     movie_content = pool.map(fetch_afisha_film_page, cinemas_count_list)
