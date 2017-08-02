@@ -21,9 +21,9 @@
                 <div class="col-sm-12 col-md-8 col-md-offset-2">
                     <div class="thumbnail">
                         <img src={{ film.poster }} alt={{ film.name }}>
-                        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="$(this).next().slideToggle('slow');">Подробнее</button>
+                        <button type="button" class="btn btn-link btn-block" onclick="$(this).next().slideToggle('slow');"><h4>Подробнее</h4></button>
                         <div class="caption" style="display: none;">
-                            <h3 class="text-center"><a href="{{ film.afisha_film_url }}">{{ film.name }}</a></h3>
+                            <h2 class="text-center"><a href="{{ film.afisha_film_url }}">{{ film.name }}</a></h2>
                             <p><h4>Жанр:</h4> {{ film.genres }}</p>
                             <p><h4>Описание:</h4>{{ film.description }}</p>
                             <div class="row text-center">

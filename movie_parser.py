@@ -1,3 +1,4 @@
+import copy
 import requests
 from multiprocessing.dummy import Pool as ThreadPool
 from operator import itemgetter
@@ -93,8 +94,8 @@ def parse_rate_kinopoisk(xml_kinopoisk_list):
 def format_info_for_output(movies_info_list,
                            afisha_info_list,
                            rate_counts_min=300):
-    movies_info_copy = movies_info_list.copy()
-    afisha_info_copy = afisha_info_list.copy()
+    movies_info_copy = copy.deepcopy(movies_info_list)
+    afisha_info_copy = copy.deepcopy(afisha_info_list)
     for movie, cinema in zip(movies_info_copy, afisha_info_copy):
         movie['cinemas_count'] = cinema['cinemas_count']
         movie['afisha_film_url'] = cinema['afisha_film_url']
