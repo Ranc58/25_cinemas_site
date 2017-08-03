@@ -63,10 +63,10 @@ def parse_afisha_film(movies_content):
 def get_kinopoisk_films_id_poster(movie):
     movies = Movie.objects.search(movie['name'])
     movie_from_afisha = movies[0]
-    id = movie_from_afisha.id
+    fiml_id = movie_from_afisha.id
     film_title = movie_from_afisha.title
-    poster = POSTER_URL.format(id)
-    movie_id_name_poster = {'id': id,
+    poster = POSTER_URL.format(fiml_id)
+    movie_id_name_poster = {'id': fiml_id,
                             'name': film_title,
                             'poster': poster}
     return movie_id_name_poster
