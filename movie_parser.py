@@ -5,7 +5,6 @@ from operator import itemgetter
 from bs4 import BeautifulSoup as bs
 from kinopoisk.movie import Movie
 
-
 KINOPOISK_XML_URL = 'https://rating.kinopoisk.ru/{}.xml'
 POSTER_URL = 'https://st.kp.yandex.net/images/film_big/{}.jpg'
 URL_AFISHA = 'https://www.afisha.ru/msk/schedule_cinema/'
@@ -91,27 +90,22 @@ def parse_rate_kinopoisk(xml_kinopoisk_list):
     return rating_list
 
 
-def format_info_for_output(movies_info_list,
-                           afisha_info_list,
+def format_info_for_output(full_info_list,
                            rate_counts_min=300):
-    movies_info_copy = copy.deepcopy(movies_info_list)
-    afisha_info_copy = copy.deepcopy(afisha_info_list)
-    for movie, cinema in zip(movies_info_copy, afisha_info_copy):
-        movie['cinemas_count'] = cinema['cinemas_count']
-        movie['afisha_film_url'] = cinema['afisha_film_url']
-        if cinema['description'] is None:
-            cinema['description'] = 'Нет информации'
-        movie['description'] = cinema['description']
-        movie['genres'] = cinema['genres']
-    full_info_list = [x for x in movies_info_copy
-                      if x.get('counts_rate') > rate_counts_min]
-    full_info_list = sorted(full_info_list,
-                            key=itemgetter('rate'), reverse=True)
-    top_10_movies = full_info_list[:10]
-    return top_10_movies
+    rate_checked_films = [x for x in full_info_list
+                          if x.get('counts_rate') > rate_counts_min]
+    sorted_and_checked_films = sorted(rate_checked_films,
+                                      key=itemgetter('rate'),
+                                      reverse=True)
+    top_10_movies = sorted_and_checked_films[:10]
+    return sorted_and_checked_films
 
 
 def output_top_movies():
+    """
+    afisha_info_list and movies_info_list can change films order.
+    This need for merge lists with info from various sources.
+    """
     threads_counts = 8
     pool = ThreadPool(threads_counts)
     afisha_raw_html = fetch_afisha_page()
@@ -119,6 +113,7 @@ def output_top_movies():
     cinemas_count_list = filter_afisha_movies(all_cinemas_count_list)
     movie_content = pool.map(fetch_afisha_film_page, cinemas_count_list)
     afisha_film_info = pool.map(parse_afisha_film, movie_content)
+
     afisha_info_list = [dict(**x, **y)
                         for x, y in zip(afisha_film_info, cinemas_count_list)]
     movies_info = pool.map(get_kinopoisk_films_id_poster, cinemas_count_list)
@@ -126,9 +121,19 @@ def output_top_movies():
     pool.terminate()
     pool.join()
     kinopoisk_rates = parse_rate_kinopoisk(xml_kinopoisk_list)
+    # This operation can change films order
     movies_info_list = [dict(**x, **y)
                         for x, y in zip(movies_info, kinopoisk_rates)]
-    top_10_movies = format_info_for_output(movies_info_list, afisha_info_list)
+    full_info_list = []
+    for movie, cinema in zip(movies_info_list, afisha_info_list):
+        movie['cinemas_count'] = cinema['cinemas_count']
+        movie['afisha_film_url'] = cinema['afisha_film_url']
+        if cinema['description'] is None:
+            cinema['description'] = 'Нет информации'
+        movie['description'] = cinema['description']
+        movie['genres'] = cinema['genres']
+        full_info_list.append({**movie, **cinema})
+    top_10_movies = format_info_for_output(full_info_list)
     return top_10_movies
 
 
