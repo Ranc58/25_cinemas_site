@@ -121,7 +121,6 @@ def output_top_movies():
     pool.terminate()
     pool.join()
     kinopoisk_rates = parse_rate_kinopoisk(xml_kinopoisk_list)
-    # This operation can change films order
     movies_info_list = [dict(**x, **y)
                         for x, y in zip(movies_info, kinopoisk_rates)]
     full_info_list = []
